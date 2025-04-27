@@ -1,7 +1,11 @@
 import Image from 'next/image'
 import React from 'react'
+import { TProperty } from './PropertyList'
 
-const PropertyListItem = () => {
+interface IPropertyProps{
+  property:TProperty;
+}
+const PropertyListItem:React.FC<IPropertyProps> = ({property}) => {
   return (
     <div className='cursor-pointer'>
     <div className="relative overflow-hidden aspect-square rounded-xl">
@@ -15,10 +19,10 @@ const PropertyListItem = () => {
      
     </div>
     <div className='mt-2'>
-        <p className='text-lg font-bold'>Property Name</p>
+        <p className='text-lg font-bold'>{property.title}</p>
       </div>
       <div className='mt-2'>
-        <p className='text-sm text-gray-500'><strong>200$</strong>per night</p>
+        <p className='text-sm text-gray-500'><strong>{property.price_per_night}$</strong>per night</p>
       </div>
     </div>
     
