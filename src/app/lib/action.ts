@@ -28,3 +28,15 @@ export async function handleLogin(
     path: "/",
   });
 }
+
+export async function resetAuthCookies(){
+
+  (await cookies()).set("session_userid",'');
+  (await cookies()).set("session_access_token",'');
+  (await cookies()).set("session_refresh_token",'');
+}
+
+export async function getUserId(){
+  const userId = (await cookies()).get("session_userid")?.value;
+  return userId? userId:null;
+}

@@ -1,18 +1,22 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import MenuLink from "./MenuLink";
 import useLoginModal from "@/app/hooks/useLoginModal";
 import useSignupModal from "@/app/hooks/useSignupModal";
-
-const UserNav = () => {
-  const [isOpen,setIsOpen]=useState(false);
-  const loginModal =  useLoginModal();
+import LogoutButton from "@/app/LogoutButton";
+interface IUserNavProps{
+  userId?:string | null;
+}
+const UserNav:React.FC<IUserNavProps> = ({userId}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const loginModal = useLoginModal();
   const signupModal = useSignupModal();
   return (
     <div className="p-2 rounded-full border relative inline-block">
       <button
-      onClick={()=> setIsOpen(!isOpen)}
-      className="flex items-center cursor-pointer">
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center cursor-pointer"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -42,31 +46,31 @@ const UserNav = () => {
           />
         </svg>
       </button>
-      {
-        isOpen &&(
-          <div className="w-[220px] absolute top-[60px] right-0 border bg-white rounded-xl shadow-md flex flex-col cursor-pointer">
-           <MenuLink
-            label='Log in'
-            
-            onClick={()=> {
-              setIsOpen(false)
-              loginModal.open()
+      {isOpen && (
+        <div className="w-[220px] absolute top-[60px] right-0 border bg-white rounded-xl shadow-md flex flex-col cursor-pointer">
+         {
+          userId ? <LogoutButton/>:(
+            <>
+             <MenuLink
+            label="Log in"
+            onClick={() => {
+              setIsOpen(false);
+              loginModal.open();
             }}
-            />
-            <hr className="bg-gray-300 opacity-20"/>
-           <MenuLink
-            label='Sign up'
-            
-            onClick={()=> {
-              setIsOpen(false)
-              signupModal.open()}}
-
-            />
-           
-
-          </div>
-        )
-      }
+          />
+          <hr className="bg-gray-300 opacity-20" />
+          <MenuLink
+            label="Sign up"
+            onClick={() => {
+              setIsOpen(false);
+              signupModal.open();
+            }}
+          />
+            </>
+          )
+         }
+        </div>
+      )}
     </div>
   );
 };
