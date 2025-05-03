@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Modals from "./Modals";
 import CustomButton from "../form/CustomButton";
 import Categories from "../addProperty/Categories";
+import SelectCountry, { TSelectCountryValue } from "../form/SelectCountry";
 
 const AddPropertyModel = () => {
   // States
@@ -17,6 +18,7 @@ const AddPropertyModel = () => {
   const [dataBedrooms, setDataBedrooms] = useState("");
   const [dataBathroom, setDataBathrooms] = useState("");
   const [dataGuests, setDataGuests] = useState("");
+  const [dataCountry , setDataCountry] = useState<TSelectCountryValue>();
 
   const setCategory = (category: string) => {
     setCategoryData(category);
@@ -135,6 +137,9 @@ const AddPropertyModel = () => {
         <>
         
         <h2 className="mb-6 text-2xl">Location</h2>
+
+        {/* Add Select Country Form */}
+        <SelectCountry value={dataCountry} onChange={(value)=> setDataCountry(value as TSelectCountryValue)}/>
 
         <div className="flex items-center justify-between mt-2">
       <CustomButton
