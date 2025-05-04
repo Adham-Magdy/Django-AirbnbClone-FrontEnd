@@ -1,10 +1,11 @@
 "use client";
 import usePropertyModel from "@/app/hooks/usePropertyModel";
-import React, { useState } from "react";
+import React, { ChangeEvent, useState } from "react";
 import Modals from "./Modals";
 import CustomButton from "../form/CustomButton";
 import Categories from "../addProperty/Categories";
 import SelectCountry, { TSelectCountryValue } from "../form/SelectCountry";
+import Image from "next/image";
 
 const AddPropertyModel = () => {
   // States
@@ -19,10 +20,19 @@ const AddPropertyModel = () => {
   const [dataBathroom, setDataBathrooms] = useState("");
   const [dataGuests, setDataGuests] = useState("");
   const [dataCountry , setDataCountry] = useState<TSelectCountryValue>();
+  const [dataImg, setDataImg] = useState<File|null>(null);
 
   const setCategory = (category: string) => {
     setCategoryData(category);
   };
+
+  const setImg = (event:ChangeEvent<HTMLInputElement>)=>{
+  if(event.target.files){
+    const tempImg = event.target.files[0];
+    setDataImg(tempImg);
+  }
+  
+  }
   const content = (
     <>
       {currentStep == 1 ? (
@@ -160,12 +170,42 @@ const AddPropertyModel = () => {
      
       : (
         <>
-          <h2 className="mb-6 text-2xl">Final</h2>
-          <CustomButton
-            label="Previous"
-            className="mb-2 bg-black hover:bg-gray-800"
-            onClick={() => setCurrentStep(4)}
-          />
+        {/* Images */}
+          <h2 className="mb-6 text-2xl">Image</h2>
+          <div className="flex flex-col space-y-2">
+           <div className="py-4 px-6 bg-gray-600 text-white rounded-xl">
+           <input
+              type="file"
+              accept="image/*"
+              onChange={setImg}
+            />
+           </div>
+           {/* Display images  */}
+           {
+            dataImg &&(
+              <div className="w-[200px] h-[150px] relative">
+                <Image
+                fill
+                alt="Upload Image"
+                src={URL.createObjectURL(dataImg)}
+                className="w-full h-full object-cover rounded-xl"
+                />
+              </div>
+            )
+           }
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <CustomButton
+              label="Previous"
+              className="mb-2 bg-black hover:bg-gray-800 w-[100px]"
+              onClick={() => setCurrentStep(4)}
+            />
+
+            <CustomButton
+              label="Submit"
+              className="w-[100px]"
+            />
+          </div>
         </>
       )}
     </>
