@@ -6,6 +6,8 @@ import CustomButton from "../form/CustomButton";
 import Categories from "../addProperty/Categories";
 import SelectCountry, { TSelectCountryValue } from "../form/SelectCountry";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import apiService from "@/app/services/apiService";
 
 const AddPropertyModel = () => {
   // States
@@ -19,20 +21,50 @@ const AddPropertyModel = () => {
   const [dataBedrooms, setDataBedrooms] = useState("");
   const [dataBathroom, setDataBathrooms] = useState("");
   const [dataGuests, setDataGuests] = useState("");
-  const [dataCountry , setDataCountry] = useState<TSelectCountryValue>();
-  const [dataImg, setDataImg] = useState<File|null>(null);
+  const [dataCountry, setDataCountry] = useState<TSelectCountryValue>();
+  const [dataImg, setDataImg] = useState<File | null>(null);
 
+  const router = useRouter();
   const setCategory = (category: string) => {
     setCategoryData(category);
   };
 
-  const setImg = (event:ChangeEvent<HTMLInputElement>)=>{
-  if(event.target.files){
-    const tempImg = event.target.files[0];
-    setDataImg(tempImg);
+  const setImg = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const tempImg = event.target.files[0];
+      setDataImg(tempImg);
+    }
+  };
+
+  // submit Property Data 
+
+  const submitData = async()=>{
+    if(categoryData && dataTitle && dataDescription && dataPrice && dataBedrooms && dataBathroom && dataGuests && dataCountry && dataImg){
+      const formData = new FormData();
+      formData.append("category",categoryData);
+      formData.append("title",dataTitle);
+      formData.append("description",dataDescription);
+      formData.append("price_per_night",dataPrice);
+      formData.append("bedrooms",dataBedrooms);
+      formData.append("bathrooms",dataBathroom);
+      formData.append("guests",dataGuests);
+      formData.append("country",dataCountry.label);
+      formData.append("country_code",dataCountry.value);
+      formData.append("image",dataImg);
+
+      // post data to api service
+      const response = await apiService.post("api/properties/create/",formData);
+
+      if(response.success){
+        console.log("Success");
+        router.push("/");
+        addPropertyModel.close();
+      }else{
+        console.log("error");
+      }
+    }
   }
-  
-  }
+
   const content = (
     <>
       {currentStep == 1 ? (
@@ -143,56 +175,49 @@ const AddPropertyModel = () => {
             />
           </div>
         </>
-      ) : currentStep == 4 ? 
+      ) : currentStep == 4 ? (
         <>
-        
-        <h2 className="mb-6 text-2xl">Location</h2>
+          <h2 className="mb-6 text-2xl">Location</h2>
 
-        {/* Add Select Country Form */}
-        <SelectCountry value={dataCountry} onChange={(value)=> setDataCountry(value as TSelectCountryValue)}/>
+          {/* Add Select Country Form */}
+          <SelectCountry
+            value={dataCountry}
+            onChange={(value) => setDataCountry(value as TSelectCountryValue)}
+          />
 
-        <div className="flex items-center justify-between mt-2">
-      <CustomButton
-        label="Previous"
-        className="mb-2 bg-black hover:bg-gray-800 w-[100px]"
-        onClick={() => setCurrentStep(3)}
-      />
+          <div className="flex items-center justify-between mt-2">
+            <CustomButton
+              label="Previous"
+              className="mb-2 bg-black hover:bg-gray-800 w-[100px]"
+              onClick={() => setCurrentStep(3)}
+            />
 
-      <CustomButton
-        label="Next"
-        onClick={() => setCurrentStep(5)}
-        className="w-[100px]"
-      />
-    </div>
+            <CustomButton
+              label="Next"
+              onClick={() => setCurrentStep(5)}
+              className="w-[100px]"
+            />
+          </div>
         </>
-      
-      
-     
-      : (
+      ) : (
         <>
-        {/* Images */}
+          {/* Images */}
           <h2 className="mb-6 text-2xl">Image</h2>
           <div className="flex flex-col space-y-2">
-           <div className="py-4 px-6 bg-gray-600 text-white rounded-xl">
-           <input
-              type="file"
-              accept="image/*"
-              onChange={setImg}
-            />
-           </div>
-           {/* Display images  */}
-           {
-            dataImg &&(
+            <div className="py-4 px-6 bg-gray-600 text-white rounded-xl">
+              <input type="file" accept="image/*" onChange={setImg} />
+            </div>
+            {/* Display images  */}
+            {dataImg && (
               <div className="w-[200px] h-[150px] relative">
                 <Image
-                fill
-                alt="Upload Image"
-                src={URL.createObjectURL(dataImg)}
-                className="w-full h-full object-cover rounded-xl"
+                  fill
+                  alt="Upload Image"
+                  src={URL.createObjectURL(dataImg)}
+                  className="w-full h-full object-cover rounded-xl"
                 />
               </div>
-            )
-           }
+            )}
           </div>
           <div className="flex items-center justify-between mt-2">
             <CustomButton
@@ -201,10 +226,7 @@ const AddPropertyModel = () => {
               onClick={() => setCurrentStep(4)}
             />
 
-            <CustomButton
-              label="Submit"
-              className="w-[100px]"
-            />
+            <CustomButton onClick={()=> submitData()} label="Submit" className="w-[100px]" />
           </div>
         </>
       )}
