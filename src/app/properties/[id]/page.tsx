@@ -1,7 +1,12 @@
 import ReservationSideBar from "@/app/components/properties/ReservationSideBar";
+import apiService from "@/app/services/apiService";
 import Image from "next/image";
 
-const PropertyDetailPage = () => {
+interface Props {
+  params: { id: string }
+}
+const PropertyDetailPage = async({ params }: Props) => {
+  const property = await apiService.get(`http://localhost:8000/api/properties/${params.id}`);
   return (
     <main className="max-w-[1500px] mx-auto px-6">
       <div className="w-full h-[64vh] mb-4 overflow-hidden relative rounded-xl">
@@ -14,34 +19,35 @@ const PropertyDetailPage = () => {
       </div>
       <div className=" grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="py-6 pr-6 col-span-3">
-          <h1 className="mb-4 text-4xl">Property Name</h1>
+          <h1 className="mb-4 text-4xl">{property.title}</h1>
           <span className="mb-6 block text-lg text-gray-600">
-            4 guests - 2 bedrooms - 1 bathroom
+            {property.guests} guests - {property.bedrooms} bedrooms - {property.bathrooms} bathroom
           </span>
           <hr className="opacity-75 bg-gray-400" />
           <div className="py-6 flex items-center space-x-4">
-            <Image
-              src={"/profile_pic_1.jpg"}
+           {
+            property.landlord.avatar_url &&(
+              <Image
+              src={property.landlord.avatar_url}
               alt="profile picture"
               className="rounded-full"
               width={50}
               height={50}
             />
+            )
+           }
             <p>
               {" "}
-              <strong>Adham Magdy</strong> is your host
+              <strong>{property.landlord.name}</strong> is your host
             </p>
           </div>
           <hr className="opacity-50 bg-gray-500" />
           <p className="mt-6 text-lg">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Animi ipsam
-            itaque qui maiores repellat at cumque nobis rerum illum, modi eum,
-            sunt, possimus illo exercitationem eveniet quis laboriosam commodi
-            dignissimos?
+            {property.description}
           </p>
         </div>
         <div>
-          <ReservationSideBar/>
+          <ReservationSideBar property={property}/>
         </div>
       </div>
     </main>

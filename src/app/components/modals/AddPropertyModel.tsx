@@ -6,8 +6,8 @@ import CustomButton from "../form/CustomButton";
 import Categories from "../addProperty/Categories";
 import SelectCountry, { TSelectCountryValue } from "../form/SelectCountry";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import apiService from "@/app/services/apiService";
+import { useRouter } from "next/navigation";
 
 const AddPropertyModel = () => {
   // States
@@ -23,6 +23,7 @@ const AddPropertyModel = () => {
   const [dataGuests, setDataGuests] = useState("");
   const [dataCountry, setDataCountry] = useState<TSelectCountryValue>();
   const [dataImg, setDataImg] = useState<File | null>(null);
+  const [errorData,setErrorData] = useState<string[]>([]);
 
   const router = useRouter();
   const setCategory = (category: string) => {
@@ -36,34 +37,47 @@ const AddPropertyModel = () => {
     }
   };
 
-  // submit Property Data 
+  // submit Property Data
 
-  const submitData = async()=>{
-    if(categoryData && dataTitle && dataDescription && dataPrice && dataBedrooms && dataBathroom && dataGuests && dataCountry && dataImg){
+  const submitData = async () => {
+    if (
+      categoryData &&
+      dataTitle &&
+      dataDescription &&
+      dataPrice &&
+      dataBedrooms &&
+      dataBathroom &&
+      dataGuests &&
+      dataCountry &&
+      dataImg
+    ) {
       const formData = new FormData();
-      formData.append("category",categoryData);
-      formData.append("title",dataTitle);
-      formData.append("description",dataDescription);
-      formData.append("price_per_night",dataPrice);
-      formData.append("bedrooms",dataBedrooms);
-      formData.append("bathrooms",dataBathroom);
-      formData.append("guests",dataGuests);
-      formData.append("country",dataCountry.label);
-      formData.append("country_code",dataCountry.value);
-      formData.append("image",dataImg);
+      const url = "http://localhost:8000/api/properties/create/";
+      formData.append("category", categoryData);
+      formData.append("title", dataTitle);
+      formData.append("description", dataDescription);
+      formData.append("price_per_night", dataPrice);
+      formData.append("bedrooms", dataBedrooms);
+      formData.append("bathrooms", dataBathroom);
+      formData.append("guests", dataGuests);
+      formData.append("country", dataCountry.label);
+      formData.append("country_code", dataCountry.value);
+      formData.append("image", dataImg);
 
       // post data to api service
-      const response = await apiService.post("api/properties/create/",formData);
+      const response = await apiService.postWithToken(url, formData);
 
-      if(response.success){
+      if (response.success) {
         console.log("Success");
         router.push("/");
         addPropertyModel.close();
-      }else{
-        console.log("error");
+      } else {
+        const tempErrors:string[] = Object.values(response).map((error)=> error)
+        setErrorData(tempErrors);
+      
       }
     }
-  }
+  };
 
   const content = (
     <>
@@ -219,6 +233,13 @@ const AddPropertyModel = () => {
               </div>
             )}
           </div>
+          {/* {
+            errorData.map((error,index)=>(
+              <div key={index} className="mb-6 p-4 bg-[#d50027] text-white rounded-xl opacity-80">
+                {error}
+              </div>
+            ))
+          } */}
           <div className="flex items-center justify-between mt-2">
             <CustomButton
               label="Previous"
@@ -226,7 +247,11 @@ const AddPropertyModel = () => {
               onClick={() => setCurrentStep(4)}
             />
 
-            <CustomButton onClick={()=> submitData()} label="Submit" className="w-[100px]" />
+            <CustomButton
+              onClick={() => submitData()}
+              label="Submit"
+              className="w-[100px]"
+            />
           </div>
         </>
       )}
